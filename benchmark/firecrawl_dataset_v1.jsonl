@@ -67,3 +67,57 @@ Kindly help. " , "resolution" :"please share the url which you used to test /ext
     }],
     ""waitFor"": 3000
   }' this will scrape the code block. "}] , "stepsToResolve":2 ,  "timeToGetResolved":"2700"}
+
+  
+{"id": 11,"queries":[{"query":"Extract all PDF URLs from webpage  Hi, guys! I've been testing the /scrape endpoint here with the json format to extract the PDF files from webpages. For pages with small number of files it's working very well, but for pages with lots of files sometimes it returns only a few and some other times ti returns the full set. Since it's AI generated it can be expected, but is there a way to pass some more instructions to the AI during the API call? I'm using the Python SDK" , "resolution" :"Hi  you can set  only_main_content=false, timeout=120000 this should give better result with more context. Also, update the prompt such that Extract all PDF file links on the page. Include every link you can find, even if hidden deep in the content. Return them in a list. this will give the LLM better context. "}] , "stepsToResolve":1 ,  "timeToGetResolved":"500"}
+
+{"id":12,"queries":[{"query":"Scraping site for logged-in users can it scrape sites that require users to be logged in? Specifically, does Firecrawl support cookie-based sessions (or other session/auth replay methods)? If so, please describe how to provide cookies/session tokens, handle CSRF, and any limits or best practices (session rotation, rate limits, anti-bot handling). Thanks!","resolution":"yeah, you can provide the Cookie within the headers, to achieve this, and use the stealth proxy to avoid anti-bot and rate limiting firewalls.\n\ncurl --request POST \"https://api.firecrawl.dev/v2/scrape\" \\\n  --header \"Authorization: Bearer YOUR_FIRECRAWL_API_KEY\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\n    \"url\": \"https://news.ycombinator.com/submitted?id=YOUR_USERNAME\",\n    \"formats\": [\"markdown\"],\n    \"onlyMainContent\": true,\n    \"headers\": {\n      \"Cookie\": \"user=YOUR_HN_COOKIE\",\n      \"User-Agent\": \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36\"\n    },\n    \"waitFor\": 2000,\n    \"timeout\": 15000,\n    \"proxy\": \"stealth\"\n  }'"}],"stepsToResolve":1,"timeToGetResolved":1800}
+
+{"id": 13,"queries":[{"query":"Hi I'm a beginner and I'm having trouble getting results from the firecrawl node in n8n. I understand i can download the results as json from the website, but I wanted the json as the nodes output. Can you help me?" , "resolution" :"Is your api call working when you test in Postman/Hoppscotch?
+
+you can refer to this to user firecrawl request in n8n https://www.firecrawl.dev/blog/firecrawl-n8n-web-automation
+
+for JSON output, in n8n - scroll to the JSON configuration section and switch from “Fixed” to “Expression” mode: "}] , "stepsToResolve":1 ,  "timeToGetResolved":"67620"}
+
+{"id":14,"queries":[{"query":"User Segmentation and pincode level support I’m using Dify workflow, I need to pull selling prices based on locality (like pincode) and also based on user types (premium, normal, new user). Does Firecrawl support extracting prices this way? Specifically, can it handle geo-based pricing and differentiate by user type or session? If not, any tips on how to achieve this would be awesome.","resolution":"yeah, you can achieve this with /search. Use this sample body which uses the location parameter:\n\n{\n  \"query\": \"property prices pincode 110001 Delhi\",\n  \"limit\": 10,\n  \"location\": \"IN\",\n  \"scrapeOptions\": {\n    \"formats\": [\"markdown\", \"json\"],\n    \"onlyMainContent\": true,\n    \"jsonOptions\": {\n      \"schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"prices\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"object\",\n              \"properties\": {\n                \"price\": {\"type\": \"string\"},\n                \"location\": {\"type\": \"string\"},\n                \"property_type\": {\"type\": \"string\"},\n                \"area\": {\"type\": \"string\"}\n              }\n            }\n          }\n        }\n      },\n      \"prompt\": \"Extract all property prices, locations, and details from this page\"\n    },\n    \"headers\": {\n      \"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\"\n    }\n  }\n}"}],"stepsToResolve":1,"timeToGetResolved":"7200"}
+
+
+{"id": 15,"queries":[{"query":"How can I make sure that my self-hosted firecrawl can handle large amount of request? If the request is plenty how could I handle the large amounts of requests?" , "resolution" :"you can simply increase the limits and configure it within the docker-compose.yaml example if you want to increase it for api worker: deploy:
+      resources:
+        limits:
+          cpus: '4.0'      # Increase if you have more CPU cores
+          memory: 8G       # Increase if you have more RAM
+        reservations:
+          cpus: '2.0'      # Minimum guaranteed CPU
+          memory: 4G       # Minimum guaranteed RAM Add this, and ensure your system (docker instance) has enough memory to spin up a bigger instance. "}] , "stepsToResolve":1 ,  "timeToGetResolved":"1200"}
+
+{"id": 16,"queries":[{"query":"Is there any way to make MAP return 100% of a domain's public URLs? I ask this because there are certain domains that return less than half of the URLs." , "resolution" :" how many expected URLs does the domain you're testing might have? 
+
+Since the /map endpoint has a maximum limit of 30,000 URLs per request and no pagination, it cannot return 100% of URLs for large domains. If the number exceeds the limit and URLs are included in subdomain pagination, you may try /search with the site query operator https://docs.firecrawl.dev/api-reference/endpoint/search#supported-query-operators" } ,{"query":"An example: 3000 and return only 150, or 587 and returna less than 200. Most of the domains I map don't return anywhere near all the URLs. I believe the problem is that MAP cannot find all URLs for some domains. I think I'll have to use the crawl endpoint, which will be a bit more expensive than I thought, right? One suggestion would be for the team to create two types of MAP endpoints, one for speed and one for quality, returning all URLs for a domain.
+
+My automation workflow is:
+The system starts the flow on a scheduled basis by period and time (e.g., every day) at 3:00 AM.
+The system reads the list of active sites in a database table called 'sites' and discovers all the page URLs for each auction lot in the domain using MAP.
+The system compares each discovered URL with the URLs already stored in the database in the 'lots' table, 'href' column, to avoid duplication.
+The system starts the extraction with Firecrawl v2, using Extract with FIRE1-Agent, to extract the data from the job URL using the prompt and the JSON schema created by the user. - The extracted data is inserted into the 'lots' table.
+
+There are approximately 1,000 auction URLs (the idea is to run the automation once a day just to find new URLs and extract their content).
+
+Do you have any tips for me? Thank you for your time and help." , "resolution":"The /map endpoint is never going to be complete, since it primarily relies on sitemaps, SERP, and URLs we've recently found on that site. The only way to do that is using /crawl, and yes it costs more for that endpoint.
+What I'd recommend for your workflow is to use /crawl and JSON mode instead of Extract and FIRE-1. This should be a lot cheaper overall than your /map + /extract approach (FIRE-1 burns through a non-deterministic number of tokens).
+/crawl with JSON mode with 1,000 auction URLs is only going to cost you 5,000 credits per day" }] , "stepsToResolve":2 ,  "timeToGetResolved":"130800"}
+
+{"id": 17,"queries":[{"query":"Does the self-hosted have a rate-limiter? How could we rate limit crawling/scraping on the self-hosted Firecrawl?" , "resolution" :" You could use the delay parameter to control how many seconds between scrapes there are during a crawl."}] , "stepsToResolve":1 ,  "timeToGetResolved":"300"}
+
+{"id": 18,"queries":[{"query":"How to set concurrency for Firecrawl self-hosted
+I'm setting max_concurrency in my crawl options but doesn't seem to do anything. the docker service is still running scrapers serially." , "resolution" :"In a self-hosting setup, you'll need to configure the docker-compose.yaml to set the max_concurrency and provide a larger number of workers to make the concurrency work. "}] , "stepsToResolve":1 ,  "timeToGetResolved":"38100"}
+
+{"id":19,"queries":[{"query":"n8n - looping through 300 records to search each result - 500 error I am new to n8n + Firecrawl. Building a workflow to iterate through 300 entries from JSON and Firecrawl/search each. From n8n I am using a generic HTTP POST with this payload:\n\n{\n  \"query\": \"{{ $json.name }}, {{$json.city}}, {{$json.state}}\",\n  \"sources\": [\"news\"],\n  \"location\": \"{{ $json.state }}\",\n  \"limit\": 1,\n  \"tbs\": \"qdr:w\",\n  \"scrapeOptions\": {\n    \"formats\": [\"summary\", \"markdown\"]\n  }\n}\n\nItems per batch: 1, Batch Interval: 2000ms\nTimeout: 11000\n\nI have it set to retry, but it still throws a 500 error when iterating through the loop. My plan is a hobby plan (50 requests/min). I think my timing/logic is correct. Please advise.","resolution":"Hi, does your Firecrawl API /search work with static values for the above payload if you test it on Postman or Hopscotch? Also, note that by default n8n nodes loop through their input items."}],"stepsToResolve":1,"timeToGetResolved":74400}
+
+
+{"id": 20,"queries":[{"query":"Hi team I am using scrape endpoint for json Schema output but after 50 or more URLs but not more than 80 the API request just hangs I am facing thsi issue from past 2 days. 
+
+Can someone help me here. Is this a rate limit issue or what because if it is a rate limit issue why I am still facing same issue after 2 days. 
+
+Thanks." , "resolution" :"Hi  could you please try increasing timeout to     timeout=120000, and yes there are rate limits based on plans, what plan are you on? https://docs.firecrawl.dev/rate-limits "}] , "stepsToResolve":1 ,  "timeToGetResolved":"14880"}
+
