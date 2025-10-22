@@ -2,26 +2,14 @@
 
 import * as React from "react";
 import {
-  IconCamera,
-  IconChartBar,
   IconDashboard,
-  IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconFileWord,
-  IconFolder,
-  IconHelp,
-  IconInnerShadowTop,
   IconListDetails,
-  IconReport,
-  IconSearch,
-  IconSettings,
-  IconUsers,
+  IconInnerShadowTop,
 } from "@tabler/icons-react";
 
-import { NavDocuments } from "@/components/nav-documents";
-import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -42,117 +30,28 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
+      title: "Playground",
+      url: "/playground",
       icon: IconListDetails,
     },
     {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
+      title: "Add Context",
+      url: "/context",
+      icon: IconListDetails,
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
+      {/* Header Section */}
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -160,7 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/">
                 <IconInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
               </a>
@@ -168,11 +67,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
+      {/* Main Nav Section */}
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <SidebarMenu>
+          {data.navMain.map((item) => {
+            const isActive = pathname === item.url;
+
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  asChild
+                  className={cn(
+                    "data-[slot=sidebar-menu-button]:!p-1.5 transition-colors flex items-center gap-2 rounded-md",
+                    isActive
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "hover:bg-muted"
+                  )}
+                >
+                  <a href={item.url}>
+                    <item.icon className="!size-5" />
+                    <span className="text-sm font-medium">{item.title}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
       </SidebarContent>
+
+      {/* Footer Section */}
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
